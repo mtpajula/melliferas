@@ -12,7 +12,8 @@ class Settings(object):
     def get_default_settings(self):
         
         d = {
-                "filetype_pattern" : "*.csv",
+                "plate_filetype_pattern" : "*.csv",
+                "data_filetype_pattern" : "*.csv",
                 "datafolder" : self.get_default_folder()
             }
         return d

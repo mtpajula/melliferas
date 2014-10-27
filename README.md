@@ -4,7 +4,7 @@ melliferas
 Reads CFX-manager data
 
 
-Melliferas TODO
+melliferas TODO
 ---------------
 
  * Lue csv -plate

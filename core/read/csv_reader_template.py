@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 import csv
 
-class Csv_Reader(object):
+class Csv_Reader_Template(object):
     
     def __init__(self, messages):
         
         self.messages = messages
-        self.title = "read csv files"
-        self.file_extension = '.csv'
-        
         self.columns = []
         self.delimiter = ';'
-        
+        self.definitions = {}
         
     def get_dialect(self):
         dialect = csv.excel
@@ -20,7 +17,10 @@ class Csv_Reader(object):
         dialect.skipinitialspace = True
         return dialect
         
-    def load(self, filepath, mehilaispesa):
+    def check_file(self):
+        pass
+        
+    def read(self, filepath, mehilaispesa):
         m = self.messages.add("Luetaan tiedosto " + filepath, "load")
         try:
             with open(filepath, 'rb') as csvfile:
@@ -41,14 +41,9 @@ class Csv_Reader(object):
             
     def create_columns(self, row):
         self.columns = row
-        '''
-        for i, cell in enumerate(row):
-            self.columns.append(cell.encode('utf-8'))
-        '''
             
     def read_row(self, mehilaispesa, row, filepath):
         rivi = {}
-        
         
         try:
             for i, cell in enumerate(row):
@@ -57,5 +52,3 @@ class Csv_Reader(object):
             
         except Exception, e:
             self.messages.error("row read error: " + str(e), "read_row", ' (row: '+str(row)+')')
-        
-

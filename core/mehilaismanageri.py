@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*
 from settings import Settings
 from messages import Messages
-from dataluku import Dataluku
+from read.dataluku import Dataluku
 from mehilaispesa import Mehilaispesa
 
 class Mehilaismanageri(object):
