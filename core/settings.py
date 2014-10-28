@@ -14,7 +14,8 @@ class Settings(object):
         d = {
                 "plate_filetype_pattern" : "*.csv",
                 "data_filetype_pattern" : "*.csv",
-                "datafolder" : self.get_default_folder()
+                "datafolder" : self.get_default_folder(),
+                "link_file" : self.get_default_folder() + "links.json"
             }
         return d
         

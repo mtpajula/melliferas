@@ -46,5 +46,9 @@ class Mehilaispesa(object):
             
         print "mehiläisiä pesässä " + str(len(self.mehilaiset))
         print ""
+        
+    def empty(self):
+        self.mehilaiset.clear()
+        del self.treatments[:]
 
         
