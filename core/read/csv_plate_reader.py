@@ -7,17 +7,5 @@ class Csv_Plate_Reader(Csv_Reader_Template):
     
     def __init__(self, messages):
         super(Csv_Plate_Reader, self).__init__(messages)
-        self.definitions["column_count"] = 25
-        self.definitions["column_titles"] = "row"
-        self.definitions["row"] = [1,"1"]
-        self.definitions["read_to"] = 10
-        
-    def load(self, filepath):
-        status = self.check_file(filepath)
-        
-        print "-"*20
-        if status is True:
-            print " Plate-tiedosto"
-        else:
-            print " Ei ole plate-tiedosto"
-        print "-"*20
+        self.definitions["title_column"] = ";1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24"
+        self.definitions["row_to_list"] = True

@@ -8,10 +8,12 @@ class Csv_Reader_Template(object):
         
         self.messages = messages
         self.columns = []
+        self.title_column_row = None
         self.delimiter = ';'
         self.definitions = {}
-        self.definitions["read_to"] = 0
+        self.definitions["read_to"] = 10
         self.definitions["column_count"] = 0
+        self.definitions["row_to_list"] = False
         
     def get_dialect(self):
         dialect = csv.excel
@@ -19,60 +21,52 @@ class Csv_Reader_Template(object):
         dialect.skipinitialspace = True
         return dialect
         
-    def check_file(self, filepath):
+    def clear(self):
+        self.columns = []
+        self.title_column_row = 0
         
-        rows = self.read(filepath, self.definitions["read_to"])
-        file_ok = True
-        row_ok = False
+    def check_column_title_row(self, row):
+        model = self.definitions["title_column"].split(self.delimiter)
         
+        row_ok = True
         try:
-            for i, row in enumerate(rows):
-                if "column_count" in self.definitions:
-                    if len(row) != self.definitions["column_count"]:
-                        print "column_count"
-                        print len(row)
-                        print self.definitions["column_count"]
-                        return False
-                        
-                if "cell" in self.definitions:
-                    if self.definitions["cell"][0] == i:
-                        if self.definitions["column_titles"] == "cell":
-                            self.create_columns(row)
-                    
-                if "row" in self.definitions:
-                    if self.definitions["row"][1] == row[self.definitions["row"][0]]:
-                        if self.definitions["column_titles"] == "row":
-                            self.create_columns(row)
-                
-                if "column_titles_num" in self.definitions:
-                    if i == self.definitions["column_titles_num"]:
-                        self.create_columns(row)
+            for i, cell in enumerate(model):
+                if row[i] != cell:
+                    row_ok = False
         except:
             row_ok = False
         
-        if len(self.columns) == 0:
-            file_ok = False
+        if row_ok is True:
+            self.create_columns(row)
         
-        print "columns:"
-        print self.columns
+        return row_ok
         
-        return file_ok
+    def check_file(self, filepath):
         
-    def read(self, filepath, read_to = None):
+        rows = self.read(filepath, True)
+        if len(rows) > 0:
+            return True
+        return False
+        
+    def read(self, filepath, check = False):
         m = self.messages.add("Luetaan tiedosto " + filepath, "load")
+        self.clear()
         rows = []
         try:
             with open(filepath, 'rb') as csvfile:
                 reader = csv.reader(csvfile, self.get_dialect())
-                
                 for i, row in enumerate(reader):
-                    rows.append(self.read_row(row))
                     
-                    if read_to is not None:
-                        if read_to == i:
-                            self.messages.set_message_status(m, True)
+                    if len(self.columns) == 0:
+                        self.check_column_title_row(row)
+                        if self.definitions["read_to"] is not None:
+                            if self.definitions["read_to"] == i:
+                                self.messages.set_message_status(m, True)
+                                return rows
+                    else:
+                        rows.append(self.read_row(row))
+                        if check is True:
                             return rows
-                    
             
             self.messages.set_message_status(m, True)
             return rows
@@ -86,11 +80,10 @@ class Csv_Reader_Template(object):
     def read_row(self, row):
         
         try:
-            if len(self.columns) == 0:
+            if self.definitions["row_to_list"] is True:
                 return row
             
             rivi = {}
-            
             for i, cell in enumerate(row):
                 rivi[self.columns[i]] = cell
             

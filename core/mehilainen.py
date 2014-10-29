@@ -10,9 +10,7 @@ class Mehilainen(object):
         self.rna_konsentraatio = None
         self.tiedostot = []
         
-        self.treatment = None
-        if "Treatment" in rivi:
-            self.treatment = rivi["Treatment"]
+        self.treatment = rivi["Sample"][1]
         
         
     def tiedostosta(self, polku):
@@ -25,15 +23,26 @@ class Mehilainen(object):
         for rivi in self.rivit:
             print rivi
             
-    def ctmean_per_target(self):
+    def targets(self):
         targets = {}
         for rivi in self.rivit:
-            if "Ct mean (r)" in rivi:
-                if rivi["Ct mean (r)"] != "":
-                    targets[rivi["Target"]] = rivi["Ct mean (r)"]
+            
+            if rivi["Target"] != '':
+                if rivi["Target"] in targets:
+                    targets[rivi["Target"]].append(float(rivi["Cq"].replace(",",".")))
+                else:
+                    targets[rivi["Target"]] = [float(rivi["Cq"].replace(",","."))]
         
         return targets
-                    
+    
+    def count_mean(self, nums):
+        '''
+        summa = 0.0
+        for num in nums:
+            summa += num
+        return summa / len(nums)
+        '''
+        return sum(nums) / float(len(nums))
             
     def tulosta(self):
         print ""
@@ -45,18 +54,18 @@ class Mehilainen(object):
             print "RNA konsentraatiota: " + str(self.rna_konsentraatio)
             
         print "rivejä mehiläisessä " + str(len(self.rivit))
-        print "treatment: " + self.treatment
+        print "treatment: " + str(self.treatment)
         
         print "-- tiedostoista rivejä ---"
         for tiedosto in self.tiedostot:
             print tiedosto
         print ""
-        targets = self.ctmean_per_target()
+        targets = self.targets()
         print " " + "target" + " "*(20 - len("target")) + "Ct mean (r)"
         print "-"*30
         for target in targets:
             spaces = " "*(20 - len(target))
-            print " " + target + spaces + targets[target]
+            print " " + target + spaces + str(self.count_mean(targets[target]))
         print ""
         
         

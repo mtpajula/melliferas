@@ -11,6 +11,7 @@ class Cli_Main(Cli_Template):
         self.argv = argv
         self.melliferas = melliferas
         self.melliferas.messages.ui.set(Terminal_Ui_Reciever(), 'cli')
+        self.melliferas.load()
         
         self.title = "Päävalikko"
         
@@ -20,6 +21,8 @@ class Cli_Main(Cli_Template):
         self.commands["sample"] = self.read_bee
         self.commands["pesa"] = self.read_nest
         self.commands["treatment"] = self.read_treatments
+        self.commands["data"] = self.datahallinta_status
+        self.commands["link"] = self.link_plates
         
     def print_settings(self):
         print "\n == Asetukset ==> "
@@ -30,6 +33,12 @@ class Cli_Main(Cli_Template):
     def print_messages(self):
         print "\n == Viestit ==> "
         self.melliferas.messages.ui.get('cli').print_messagelist(self.melliferas.messages.m)
+        
+    def datahallinta_status(self):
+        print "\n == datalinkit ==> \n"
+        self.melliferas.datahallinta.tulosta_linkit()
+        print "\n == platet ==> "
+        self.melliferas.datahallinta.tulosta_platet()
     
     def load_data(self):
         self.melliferas.dataluku.load()
@@ -60,6 +69,20 @@ class Cli_Main(Cli_Template):
         print ""
         print ""
         
+    def link_plates(self):
+        
+        platet = self.melliferas.datahallinta.platelista()
+        
+        for data in self.melliferas.datahallinta.datat:
+            opt = self.select_options(platet)
+            if opt is None:
+                print " ! Ei plateja, mistä valita"
+                return
+            print ""
+            self.melliferas.datahallinta.linkita(data, platet[opt])
+            print "Linkitetty"
+            print ""
+        
     def select_options(self, options):
         
         print ""
@@ -72,7 +95,7 @@ class Cli_Main(Cli_Template):
             print "]: " + name
         print ""
         
-        if len(options) > 1:
+        if len(options) > 0:
             syote = raw_input("Valitse listasta: ")
             if syote != "":
                 if self.is_int(syote):
