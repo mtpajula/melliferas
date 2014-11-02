@@ -10,6 +10,7 @@ class Mehilaispesa(object):
         self.laskin = laskin
         self.mehilaiset = {}
         self.treatments = []
+        self.pesat = []
         
     def lisaa_rivi(self, rivi, filepath):
         
@@ -24,6 +25,9 @@ class Mehilaispesa(object):
                 if apismellifera.treatment != None:
                     if apismellifera.treatment not in self.treatments:
                         self.treatments.append(apismellifera.treatment)
+                        
+                if apismellifera.nest not in self.pesat:
+                    self.pesat.append(apismellifera.nest)
                 
                 self.mehilaiset[rivi["Sample"]] = apismellifera
         else:
@@ -35,17 +39,22 @@ class Mehilaispesa(object):
             if self.mehilaiset[bee].treatment == treatment:
                 rajatut.append(self.mehilaiset[bee])
         return rajatut
+        
+    def rajaa_pesa(self, pesa):
+        rajatut = []
+        for bee in self.mehilaiset:
+            if self.mehilaiset[bee].nest == pesa:
+                rajatut.append(self.mehilaiset[bee])
+        return rajatut
             
-    def tulosta_pesatiedot(self):
+    def tulosta_tiedot(self):
         print ""
-        print "    Mehiläispesä"
-        print "="*40
-        if self.nimi is None:
-            print "Pesällä ei ole nimeä"
-        else:
-            print "nimi: " + self.nimi
-            
-        print "mehiläisiä pesässä " + str(len(self.mehilaiset))
+        for pesa in self.pesat:
+            print "    Mehiläispesä " + pesa
+            print "="*40
+            print "mehiläisiä pesässä " + str(len(self.rajaa_pesa(pesa)))
+            print ""
+        print "mehiläisiä yhteensä " + str(len(self.mehilaiset))
         print ""
         
     def empty(self):
@@ -53,14 +62,17 @@ class Mehilaispesa(object):
         del self.treatments[:]
         
     def tulosta_target_data(self, bee):
-        targets = bee.targets()
-        print " " + "target" + " "*(20 - len("target")) + "Ct mean (r)" + " "*(20 - len("Ct mean (r)")) + "Status"
-        print "-"*50
+        targets = self.laskin.ct_means(bee.targets())
+        targets = self.laskin.delta_ct(targets)
+        print " " + "target" + " "*(20 - len("target")) + "Ct mean (r)" + " "*(20 - len("Ct mean")) + "Delta Ct" + " "*(20 - len("Delta Ct")) + "Status"
+        print "-"*70
+        
         for target in targets:
-            tulokset = self.laskin.ct_mean(target, targets[target])
             spaces = " "*(20 - len(target))
-            print " " + target + spaces + str(tulokset["ct_mean"]),
-            spaces = " "*(20 - len(str(tulokset["ct_mean"])))
-            print spaces + tulokset["status"]
+            print " " + target + spaces + str(targets[target]["ct_mean"]),
+            spaces = " "*(20 - len(str(targets[target]["ct_mean"])))
+            print spaces + str(targets[target]["delta_ct"]),
+            spaces = " "*(20 - len(str(targets[target]["delta_ct"])))
+            print spaces + targets[target]["status"]
 
         

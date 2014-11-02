@@ -45,7 +45,7 @@ class Cli_Main(Cli_Template):
         self.melliferas.dataluku.load()
         
     def read_nest(self):
-        self.melliferas.mehilaispesa.tulosta_pesatiedot()
+        self.melliferas.mehilaispesa.tulosta_tiedot()
         
     def write_file(self):
         self.melliferas.kirjoitin.write()

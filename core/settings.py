@@ -24,6 +24,12 @@ class Settings(object):
                                 "B1" :    {"min" : 23.0, "max" : 27.0, "dist" : 1.0},
                                 "C2" :    {"min" : 27.0, "max" : 34.0, "dist" : 1.0},
                                 "RPS49" : {"min" : 15.0, "max" : 25.0, "dist" : 10.0}
+                                },
+                "target-ref" : {
+                                "Vg" : "RPS49",
+                                "A1" : "RPS49",
+                                "B1" : "RPS49",
+                                "C2" : "Actin"
                                 }
             }
         return d

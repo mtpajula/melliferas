@@ -8,11 +8,18 @@ class Laskin(object):
         self.messages = messages
         self.settings = settings
         
+    def ct_means(self, targets):
+        outdata = {}
+        for target in targets:
+            outdata[target] = self.ct_mean(target, targets[target])
+        return outdata
+        
     def ct_mean(self, target, cq_list):
         rajat = self.settings.get("target_limits")
         outdata = {
                     "ct_mean" : 0.0,
-                    "status" : ""
+                    "status" : "",
+                    "delta_ct" : ""
                     }
         
         comparison = None
@@ -54,3 +61,28 @@ class Laskin(object):
         
     def count_mean(self, nums):
         return sum(nums) / float(len(nums))
+        
+    def delta_ct(self, meandata):
+        
+        target_ref = self.settings.get("target-ref")
+        
+        for target in meandata:
+            
+            if target not in target_ref:
+                continue
+                
+            if target_ref[target] not in meandata:
+                continue
+                
+            if meandata[target_ref[target]]["ct_mean"] == 0:
+                continue
+                
+            if meandata[target]["ct_mean"] == 0:
+                continue
+            
+            meandata[target]["delta_ct"] = meandata[target]["ct_mean"] - meandata[target_ref[target]]["ct_mean"]
+        
+        return meandata
+            
+        
+        
