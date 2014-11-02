@@ -18,12 +18,12 @@ class Settings(object):
                 "outfile" : self.get_default_folder() + "out.csv",
                 "link_file" : self.get_default_folder() + "links.json",
                 "target_limits" : {
-                                "Vg" :    {"min" : 15.0, "max" : 25.0},
-                                "A1" :    {"min" : 20.0, "max" : 30.0},
-                                "Actin" : {"min" : 13.0, "max" : 21.0},
-                                "B1" :    {"min" : 23.0, "max" : 27.0},
-                                "C2" :    {"min" : 27.0, "max" : 34.0},
-                                "RPS49" : {"min" : 15.0, "max" : 25.0}
+                                "Vg" :    {"min" : 15.0, "max" : 25.0, "dist" : 1.0},
+                                "A1" :    {"min" : 20.0, "max" : 30.0, "dist" : 1.0},
+                                "Actin" : {"min" : 13.0, "max" : 21.0, "dist" : 10.0},
+                                "B1" :    {"min" : 23.0, "max" : 27.0, "dist" : 1.0},
+                                "C2" :    {"min" : 27.0, "max" : 34.0, "dist" : 1.0},
+                                "RPS49" : {"min" : 15.0, "max" : 25.0, "dist" : 10.0}
                                 }
             }
         return d

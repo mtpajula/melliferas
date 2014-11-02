@@ -26,20 +26,23 @@ class BeeWriter(object):
             with open(filepath, 'wb') as csvfile:
                 writer = csv.writer(csvfile, self.get_dialect())
                 
-                writer.writerow(['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Limit'])
+                writer.writerow(['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Status'])
                 
                 for beesample in self.mehilaispesa.mehilaiset:
                     bee = self.mehilaispesa.mehilaiset[beesample]
-                    targets = bee.targets_count(self.settings.target_limits())
+                    targets = bee.targets()
+                    
                     for target in targets:
+                        tulokset = self.mehilaispesa.laskin.ct_mean(target, targets[target])
+                        
                         row = []
                         row.append(beesample)
                         row.append(bee.nest)
                         row.append(bee.treatment)
                         row.append(target)
-                        row.append(str(targets[target]["Ct mean"]).replace(".",","))
-                        row.append(targets[target]["limit"])
-                        print row
+                        row.append(str(tulokset["ct_mean"]).replace(".",","))
+                        row.append(tulokset["status"])
+                        
                         writer.writerow(row)
             
             self.messages.set_message_status(m, True)

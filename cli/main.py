@@ -54,7 +54,9 @@ class Cli_Main(Cli_Template):
         print ""
         bee = raw_input("Anna mehiläisen nimi: ")
         if bee in self.melliferas.mehilaispesa.mehilaiset:
-            self.melliferas.mehilaispesa.mehilaiset[bee].tulosta(self.melliferas.settings.target_limits())
+            self.melliferas.mehilaispesa.mehilaiset[bee].tulosta()
+            self.melliferas.mehilaispesa.tulosta_target_data(self.melliferas.mehilaispesa.mehilaiset[bee])
+            print ""
             question = raw_input("Luetaanko raakadatarivit? (k/e): ")
             if question == "k":
                 self.melliferas.mehilaispesa.mehilaiset[bee].tulosta_rivit()

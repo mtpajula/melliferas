@@ -4,9 +4,10 @@ from mehilainen import Mehilainen
 
 class Mehilaispesa(object):
     
-    def __init__(self, messages):
+    def __init__(self, messages, laskin):
         self.nimi = None
         self.messages = messages
+        self.laskin = laskin
         self.mehilaiset = {}
         self.treatments = []
         
@@ -50,5 +51,16 @@ class Mehilaispesa(object):
     def empty(self):
         self.mehilaiset.clear()
         del self.treatments[:]
+        
+    def tulosta_target_data(self, bee):
+        targets = bee.targets()
+        print " " + "target" + " "*(20 - len("target")) + "Ct mean (r)" + " "*(20 - len("Ct mean (r)")) + "Status"
+        print "-"*50
+        for target in targets:
+            tulokset = self.laskin.ct_mean(target, targets[target])
+            spaces = " "*(20 - len(target))
+            print " " + target + spaces + str(tulokset["ct_mean"]),
+            spaces = " "*(20 - len(str(tulokset["ct_mean"])))
+            print spaces + tulokset["status"]
 
         
