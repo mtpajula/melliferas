@@ -15,9 +15,21 @@ class Settings(object):
                 "plate_filetype_pattern" : "*.csv",
                 "data_filetype_pattern" : "*.csv",
                 "datafolder" : self.get_default_folder(),
-                "link_file" : self.get_default_folder() + "links.json"
+                "outfile" : self.get_default_folder() + "out.csv",
+                "link_file" : self.get_default_folder() + "links.json",
+                "target_limits" : {
+                                "Vg" :    {"min" : 15.0, "max" : 25.0},
+                                "A1" :    {"min" : 20.0, "max" : 30.0},
+                                "Actin" : {"min" : 13.0, "max" : 21.0},
+                                "B1" :    {"min" : 23.0, "max" : 27.0},
+                                "C2" :    {"min" : 27.0, "max" : 34.0},
+                                "RPS49" : {"min" : 15.0, "max" : 25.0}
+                                }
             }
         return d
+        
+    def target_limits(self):
+        return self.d["target_limits"]
         
     def merge_settings(self, d_from):
         for setting in d_from:

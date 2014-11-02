@@ -20,18 +20,14 @@ class Dataluku(object):
         
         self.files = {}
         
-    def load(self, datafolder = None):
+    def load(self):
         
-        if datafolder is None:
-            datafolder = self.settings.d["datafolder"]
-        
-        self.read_folder(datafolder)
+        self.read_folder()
         self.import_all()
         
-    def read_folder(self, datafolder = None):
+    def read_folder(self):
         
-        if datafolder is None:
-            datafolder = self.settings.d["datafolder"]
+        datafolder = self.settings.get("datafolder")
         
         m = self.messages.add("Luetaan kansio " + datafolder, "Dataluku")
         
@@ -44,6 +40,9 @@ class Dataluku(object):
         self.messages.set_message_status(m, True)
         
     def load_file(self, filepath):
+        if filepath is None:
+            return
+        
         m = self.messages.add("Tutkitaan tiedosto " + filepath, "load_file")
         rows = self.plate_reader.read(filepath)
         if len(rows) > 0:
@@ -74,8 +73,12 @@ class Dataluku(object):
         
         rows = self.data_reader.read(data)
         for row in rows:
-            
-            row["Sample"] = self.datahallinta.sample(data, row["Well"])
-            self.mehilaispesa.lisaa_rivi(row, data)
+            if 'Target' in row:
+                if row['Target'] != '':
+                    row["Sample"] = self.datahallinta.sample(data, row["Well"])
+                    if row["Sample"] is not None:
+                        self.mehilaispesa.lisaa_rivi(row, data)
+                    else:
+                        self.messages.error("Samplea ei löytynyt. Well: " + row["Well"], "import_datafile")
         
         

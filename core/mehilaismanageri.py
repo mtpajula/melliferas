@@ -5,6 +5,7 @@ from messages import Messages
 from read.dataluku import Dataluku
 from mehilaispesa import Mehilaispesa
 from datahallinta import DataHallinta
+from write.kirjoitin import BeeWriter
 
 class Mehilaismanageri(object):
     
@@ -13,6 +14,7 @@ class Mehilaismanageri(object):
         self.messages = Messages()
         self.mehilaispesa = Mehilaispesa(self.messages)
         self.datahallinta = DataHallinta(self.settings, self.messages)
+        self.kirjoitin = BeeWriter(self.settings, self.messages, self.mehilaispesa)
         
         self.dataluku = Dataluku(self.settings, self.messages, self.mehilaispesa, self.datahallinta)
         

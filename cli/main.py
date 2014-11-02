@@ -23,6 +23,7 @@ class Cli_Main(Cli_Template):
         self.commands["treatment"] = self.read_treatments
         self.commands["data"] = self.datahallinta_status
         self.commands["link"] = self.link_plates
+        self.commands["kirjoita"] = self.write_file
         
     def print_settings(self):
         print "\n == Asetukset ==> "
@@ -46,11 +47,14 @@ class Cli_Main(Cli_Template):
     def read_nest(self):
         self.melliferas.mehilaispesa.tulosta_pesatiedot()
         
+    def write_file(self):
+        self.melliferas.kirjoitin.write()
+        
     def read_bee(self):
         print ""
         bee = raw_input("Anna mehiläisen nimi: ")
         if bee in self.melliferas.mehilaispesa.mehilaiset:
-            self.melliferas.mehilaispesa.mehilaiset[bee].tulosta()
+            self.melliferas.mehilaispesa.mehilaiset[bee].tulosta(self.melliferas.settings.target_limits())
             question = raw_input("Luetaanko raakadatarivit? (k/e): ")
             if question == "k":
                 self.melliferas.mehilaispesa.mehilaiset[bee].tulosta_rivit()
@@ -74,6 +78,9 @@ class Cli_Main(Cli_Template):
         platet = self.melliferas.datahallinta.platelista()
         
         for data in self.melliferas.datahallinta.datat:
+            print "datatiedosto:"
+            print data
+            print "-"*20
             opt = self.select_options(platet)
             if opt is None:
                 print " ! Ei plateja, mistä valita"

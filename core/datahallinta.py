@@ -34,10 +34,13 @@ class DataHallinta(object):
         self.platet[plate_filepath] = raakadata
         
     def sample(self, data, well):
-        for row in self.platet[self.datat[data]["plate"]]:
-            if row[0] == well[0]:
-                #print well[1:]
-                return row[int(well[1:])]
+        try:
+            for row in self.platet[self.datat[data]["plate"]]:
+                if row[0] == well[0]:
+                    sample = row[int(well[1:])]
+                    return sample
+        except:
+            return None
                 
         
     def tyhjenna(self):
