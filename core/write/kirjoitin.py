@@ -17,19 +17,23 @@ class BeeWriter(object):
         dialect.skipinitialspace = True
         return dialect
         
-    def write(self):
+    def write(self, bees = None):
+        if bees is None:
+            bees = self.mehilaispesa.listana()
+        self.write_bee_list(bees)
+        
+    def write_bee_list(self, bees):
         
         filepath = self.settings.get("outfile")
         
-        m = self.messages.add("Kirjoitetaan tiedosto " + filepath, "write")
+        m = self.messages.add("Kirjoitetaan tiedosto " + filepath, "write_bee_list")
         try:
             with open(filepath, 'wb') as csvfile:
                 writer = csv.writer(csvfile, self.get_dialect())
                 
                 writer.writerow(['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Delta Ct', 'Status'])
                 
-                for beesample in self.mehilaispesa.mehilaiset:
-                    bee = self.mehilaispesa.mehilaiset[beesample]
+                for bee in bees:
                     targets = bee.targets()
                     
                     targets = self.mehilaispesa.laskin.ct_means(bee.targets())
@@ -37,7 +41,7 @@ class BeeWriter(object):
                     
                     for target in targets:
                         row = []
-                        row.append(beesample)
+                        row.append(bee.sample)
                         row.append(bee.nest)
                         row.append(bee.treatment)
                         row.append(target)

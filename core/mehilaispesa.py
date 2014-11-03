@@ -33,20 +33,42 @@ class Mehilaispesa(object):
         else:
             self.messages.error("Ei mehiläisen nimeä rivissä")
             
-    def rajaa_treatment(self, treatment):
+    def rajaa_treatment(self, treatment, bees = None):
         rajatut = []
-        for bee in self.mehilaiset:
-            if self.mehilaiset[bee].treatment == treatment:
-                rajatut.append(self.mehilaiset[bee])
+        if bees is None:
+            bees = self.listana()
+        for bee in bees:
+            if bee.treatment == treatment:
+                rajatut.append(bee)
         return rajatut
         
-    def rajaa_pesa(self, pesa):
+    def rajaa_pesa(self, pesa, bees = None):
         rajatut = []
-        for bee in self.mehilaiset:
-            if self.mehilaiset[bee].nest == pesa:
-                rajatut.append(self.mehilaiset[bee])
+        if bees is None:
+            bees = self.listana()
+        for bee in bees:
+            if bee.nest == pesa:
+                rajatut.append(bee)
         return rajatut
+        
+    def listana(self):
+        lista = []
+        for bee in self.mehilaiset:
+            lista.append(self.mehilaiset[bee])
+        return lista
+    
+    def rajaa(self, pesa, treatment):
+        bees =  self.listana()
+        
+        if pesa is not None:
+            bees = self.rajaa_pesa(pesa, bees)
             
+        if treatment is not None:
+            bees = self.rajaa_treatment(treatment, bees)
+            
+        return bees
+        
+        
     def tulosta_tiedot(self):
         print ""
         for pesa in self.pesat:

@@ -48,7 +48,42 @@ class Cli_Main(Cli_Template):
         self.melliferas.mehilaispesa.tulosta_tiedot()
         
     def write_file(self):
-        self.melliferas.kirjoitin.write()
+        print ""
+        filename = raw_input("Anna tiedoston nimi: ")
+        self.melliferas.settings.set_outfile_name(filename)
+        print ""
+        limits = ["ei rajausta","pesa","treatment","molemmat"]
+        print "Valitse tulostusrajaus"
+        opt = self.select_options(limits)
+        
+        pesa = None
+        treatment = None
+        
+        if limits[opt] == "ei rajausta":
+            pass
+        elif limits[opt] == "pesa":
+            print "Valitse tulostettava pesä"
+            opt = self.select_options(self.melliferas.mehilaispesa.pesat)
+            pesa = self.melliferas.mehilaispesa.pesat[opt]
+        elif limits[opt] == "treatment":
+            print "Valitse tulostettava treatment"
+            opt = self.select_options(self.melliferas.mehilaispesa.treatments)
+            treatment = self.melliferas.mehilaispesa.treatments[opt]
+        elif limits[opt] == "molemmat":
+            print "Valitse tulostettava pesä"
+            opt = self.select_options(self.melliferas.mehilaispesa.pesat)
+            pesa = self.melliferas.mehilaispesa.pesat[opt]
+            print "Valitse tulostettava treatment"
+            opt = self.select_options(self.melliferas.mehilaispesa.treatments)
+            treatment = self.melliferas.mehilaispesa.treatments[opt]
+        
+        bees = self.melliferas.mehilaispesa.rajaa(pesa, treatment)
+        print ""
+        print "Rajaukset:"
+        print "Pesä: " + str(pesa)
+        print "Treatment: " + str(treatment)
+        self.melliferas.kirjoitin.write(bees)
+        print ""
         
     def read_bee(self):
         print ""
@@ -113,10 +148,16 @@ class Cli_Main(Cli_Template):
                         return num
                     else:
                         print " ! Antamaasi lukua ei ole listassa"
+                        print " -> Yritä uudelleen"
+                        return self.select_options(options)
                 else:
                     print " ! Et antanut numeroa"
+                    print " -> Yritä uudelleen"
+                    return self.select_options(options)
             else:
                 print " ! Et antanut mitään"
+                print " -> Yritä uudelleen"
+                return self.select_options(options)
         return None
         
     def is_int(self, num):

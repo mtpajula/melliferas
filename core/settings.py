@@ -63,4 +63,7 @@ class Settings(object):
     def get_default_folder(self):
         return self.project_folder + "/data/"
         
+    def set_outfile_name(self, filename):
+        self.d["outfile"] = self.get_default_folder() + filename + ".csv"
+        
         
