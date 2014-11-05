@@ -62,6 +62,13 @@ class Laskin(object):
     def count_mean(self, nums):
         return sum(nums) / float(len(nums))
         
+    def delta_ct_treatmens(self, ddct):
+        ddct_2 = {}
+        for treatment in ddct:
+            ddct_2[treatment] = self.delta_ct(ddct[treatment])
+            
+        return ddct_2
+        
     def delta_ct(self, meandata):
         
         target_ref = self.settings.get("target-ref")
@@ -83,6 +90,46 @@ class Laskin(object):
             meandata[target]["delta_ct"] = meandata[target]["ct_mean"] - meandata[target_ref[target]]["ct_mean"]
         
         return meandata
+        
+    def group_ct_mean(self, bees):
+        target_means = {}
+        
+        for bee in bees:
+            targets = self.ct_means(bee.targets())
+            
+            for target in targets:
+                
+                if target in target_means:
+                    target_means[target].append(targets[target]["ct_mean"])
+                else:
+                    target_means[target] = [targets[target]["ct_mean"]]
+        
+        ddct_targets = {}
+        for target in target_means:
+            ddct_targets[target] = {
+                                    "ct_mean" : self.count_mean(target_means[target]),
+                                    "status" : "",
+                                    "delta_ct" : ""
+                                }
+            #ddct_targets[target] = self.count_mean(target_means[target])
+        return ddct_targets
+        
+    def delta_delta_ct(self, ddct):
+        
+        target_ref = self.settings.get("target-ref")
+        results = {}
+        
+        for target in target_ref:
+            try:
+                results[target] = {
+                                    "test1" :   ddct["t"][target]["delta_ct"] - ddct["c"][target]["delta_ct"],
+                                    "test2" :   ddct["t"][target]["delta_ct"] - ddct["i"][target]["delta_ct"],
+                                    "control" : ddct["c"][target]["delta_ct"] - ddct["i"][target]["delta_ct"],
+                                }
+            except Exception, e:
+                self.messages.error("delta-delta-ct, " + target + ": " + str(e))
+        
+        return results
             
         
         

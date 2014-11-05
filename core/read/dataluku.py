@@ -22,6 +22,7 @@ class Dataluku(object):
         
     def load(self):
         
+        self.mehilaispesa.empty()
         self.read_folder()
         self.import_all()
         

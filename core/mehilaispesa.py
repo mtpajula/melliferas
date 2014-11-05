@@ -51,10 +51,18 @@ class Mehilaispesa(object):
                 rajatut.append(bee)
         return rajatut
         
+    def poista_mehilainen(self, sample):
+        try:
+            self.mehilaiset.pop(sample, None)
+            return True
+        except:
+            return False
+        
     def listana(self):
         lista = []
         for bee in self.mehilaiset:
             lista.append(self.mehilaiset[bee])
+        lista.sort(key = lambda x: x.sample)
         return lista
     
     def rajaa(self, pesa, treatment):
@@ -68,6 +76,18 @@ class Mehilaispesa(object):
             
         return bees
         
+    def target_keskiarvot(self, pesa = None):
+        if pesa is None:
+            bees = self.listana()
+        else:
+            bees = self.rajaa(pesa, None)
+        
+        ddct = {}
+        for treatment in self.treatments:
+            t_bees = self.rajaa_treatment(treatment, bees)
+            ddct[treatment] = self.laskin.group_ct_mean(t_bees)
+            
+        return ddct
         
     def tulosta_tiedot(self):
         print ""
@@ -76,12 +96,46 @@ class Mehilaispesa(object):
             print "="*40
             print "mehiläisiä pesässä " + str(len(self.rajaa_pesa(pesa)))
             print ""
+            self.tulosta_target_keskiarvot(pesa)
+            print ""
+        print "    Kaikki"
+        print "="*40
         print "mehiläisiä yhteensä " + str(len(self.mehilaiset))
+        print ""
+        self.tulosta_target_keskiarvot()
         print ""
         
     def empty(self):
         self.mehilaiset.clear()
         del self.treatments[:]
+        del self.pesat[:]
+        
+    def tulosta_delta_delta_ct(self, means):
+        ddct = self.laskin.delta_delta_ct(means)
+        print " " + "target" + " "*(20 - len("target")) + "ryhmät" + " "*(20 - len("ryhmät")) + "Delta delta Ct"
+        print "-"*50
+        for target in ddct:
+            spaces = " "*(20 - len(target))
+            t =  " " + target + spaces
+            for group in ddct[target]:
+                spaces = " "*(20 - len(group))
+                print t + group + spaces + str(ddct[target][group])
+        
+    def tulosta_target_keskiarvot(self, pesa = None):
+        means = self.target_keskiarvot(pesa)
+        means = self.laskin.delta_ct_treatmens(means)
+        print " " + "treatment" + " "*(20 - len("treatment")) + "target" + " "*(20 - len("target")) + "Ryhmän Ct mean" + " "*(20 - len("Ryhmän Ct mean")) + "Delta Ct"
+        print "-"*70
+        for treatment in means:
+            spaces = " "*(20 - len(treatment))
+            t =  " " + treatment + spaces
+            for target in means[treatment]:
+                spaces = " "*(20 - len(target))
+                print t + target + spaces + str(means[treatment][target]["ct_mean"]),
+                spaces = " "*(20 - len(str(means[treatment][target]["ct_mean"])))
+                print spaces + str(means[treatment][target]["delta_ct"])
+        print ""
+        self.tulosta_delta_delta_ct(means)
         
     def tulosta_target_data(self, bee):
         targets = self.laskin.ct_means(bee.targets())

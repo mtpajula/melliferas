@@ -24,6 +24,7 @@ class Cli_Main(Cli_Template):
         self.commands["data"] = self.datahallinta_status
         self.commands["link"] = self.link_plates
         self.commands["kirjoita"] = self.write_file
+        self.commands["poista"] = self.delete_bee
         
     def print_settings(self):
         print "\n == Asetukset ==> "
@@ -46,6 +47,15 @@ class Cli_Main(Cli_Template):
         
     def read_nest(self):
         self.melliferas.mehilaispesa.tulosta_tiedot()
+        
+    def delete_bee(self):
+        print ""
+        sample = raw_input("Anna mehiläisen nimi (sample): ")
+        if self.melliferas.mehilaispesa.poista_mehilainen(sample) is True:
+            print "Poistettu"
+        else:
+            print "Mehiläistä ei ole"
+        print ""
         
     def write_file(self):
         print ""
