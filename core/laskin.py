@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
+import numpy as np
 
 class Laskin(object):
     
@@ -19,7 +20,8 @@ class Laskin(object):
         outdata = {
                     "ct_mean" : 0.0,
                     "status" : "",
-                    "delta_ct" : ""
+                    "delta_ct" : "",
+                    "standard_deviation" : ""
                     }
         
         comparison = None
@@ -56,11 +58,18 @@ class Laskin(object):
             in_limits.remove(d)
         '''
         outdata["ct_mean"] = self.count_mean(in_limits)
+        outdata["standard_deviation"] = self.count_standard_deviation(in_limits)
                     
         return outdata
         
     def count_mean(self, nums):
         return sum(nums) / float(len(nums))
+        
+    def count_standard_deviation(self, nums):
+        if len(nums) < 2:
+            return 0
+        
+        return np.std(nums, ddof=1)
         
     def delta_ct_treatmens(self, ddct):
         ddct_2 = {}
@@ -109,7 +118,8 @@ class Laskin(object):
             ddct_targets[target] = {
                                     "ct_mean" : self.count_mean(target_means[target]),
                                     "status" : "",
-                                    "delta_ct" : ""
+                                    "delta_ct" : "",
+                                    "standard_deviation" : self.count_standard_deviation(target_means[target])
                                 }
             #ddct_targets[target] = self.count_mean(target_means[target])
         return ddct_targets

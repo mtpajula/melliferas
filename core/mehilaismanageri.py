@@ -6,6 +6,7 @@ from read.dataluku import Dataluku
 from mehilaispesa import Mehilaispesa
 from datahallinta import DataHallinta
 from write.kirjoitin import BeeWriter
+from write.group_kirjoitin import GroupWriter
 from laskin import Laskin
 
 class Mehilaismanageri(object):
@@ -17,7 +18,9 @@ class Mehilaismanageri(object):
         self.laskin = Laskin(self.settings, self.messages)
         self.mehilaispesa = Mehilaispesa(self.messages, self.laskin)
         self.datahallinta = DataHallinta(self.settings, self.messages)
+        
         self.kirjoitin = BeeWriter(self.settings, self.messages, self.mehilaispesa)
+        self.ryhmakirjoitin = GroupWriter(self.settings, self.messages, self.mehilaispesa)
         
         
         self.dataluku = Dataluku(self.settings, self.messages, self.mehilaispesa, self.datahallinta)

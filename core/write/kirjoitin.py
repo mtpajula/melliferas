@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
 import csv
+from template_kirjoitin import TemplateWriter 
 
-class BeeWriter(object):
+class BeeWriter(TemplateWriter):
     
     def __init__(self, settings, messages, mehilaispesa):
-        
-        self.messages = messages
-        self.settings = settings
-        self.mehilaispesa = mehilaispesa
-        self.delimiter = ';'
+        super(BeeWriter, self).__init__(settings, messages, mehilaispesa)
+        self.title_column = ['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Standard deviation', 'Delta Ct', 'Status']
         
     def get_dialect(self):
         dialect = csv.excel
@@ -20,37 +18,27 @@ class BeeWriter(object):
     def write(self, bees = None):
         if bees is None:
             bees = self.mehilaispesa.listana()
-        self.write_bee_list(bees)
+        self.write_file(bees)
         
-    def write_bee_list(self, bees):
+    def write_rows(self, writer, bees):
         
-        filepath = self.settings.get("outfile")
+        writer.writerow(self.title_column)
         
-        m = self.messages.add("Kirjoitetaan tiedosto " + filepath, "write_bee_list")
-        try:
-            with open(filepath, 'wb') as csvfile:
-                writer = csv.writer(csvfile, self.get_dialect())
-                
-                writer.writerow(['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Delta Ct', 'Status'])
-                
-                for bee in bees:
-                    targets = bee.targets()
-                    
-                    targets = self.mehilaispesa.laskin.ct_means(bee.targets())
-                    targets = self.mehilaispesa.laskin.delta_ct(targets)
-                    
-                    for target in targets:
-                        row = []
-                        row.append(bee.sample)
-                        row.append(bee.nest)
-                        row.append(bee.treatment)
-                        row.append(target)
-                        row.append(str(targets[target]["ct_mean"]).replace(".",","))
-                        row.append(str(targets[target]["delta_ct"]).replace(".",","))
-                        row.append(targets[target]["status"])
-                        
-                        writer.writerow(row)
+        for bee in bees:
+            targets = bee.targets()
             
-            self.messages.set_message_status(m, True)
-        except Exception, e:
-            self.messages.set_message_status(m, False, str(e))
+            targets = self.mehilaispesa.laskin.ct_means(bee.targets())
+            targets = self.mehilaispesa.laskin.delta_ct(targets)
+            
+            for target in targets:
+                row = []
+                row.append(bee.sample)
+                row.append(bee.nest)
+                row.append(bee.treatment)
+                row.append(target)
+                row.append(self.num(targets[target]["ct_mean"]))
+                row.append(self.num(targets[target]["standard_deviation"]))
+                row.append(self.num(targets[target]["delta_ct"]))
+                row.append(targets[target]["status"])
+                
+                writer.writerow(row)

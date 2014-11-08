@@ -25,6 +25,7 @@ class Cli_Main(Cli_Template):
         self.commands["link"] = self.link_plates
         self.commands["kirjoita"] = self.write_file
         self.commands["poista"] = self.delete_bee
+        self.commands["ryhmakirjoita"] = self.write_group_file
         
     def print_settings(self):
         print "\n == Asetukset ==> "
@@ -55,6 +56,30 @@ class Cli_Main(Cli_Template):
             print "Poistettu"
         else:
             print "Mehiläistä ei ole"
+        print ""
+        
+    def write_group_file(self):
+        print ""
+        filename = raw_input("Anna tiedoston nimi: ")
+        self.melliferas.settings.set_outfile_name(filename)
+        print ""
+        limits = ["ei rajausta","pesa"]
+        print "Valitse tulostusrajaus"
+        opt = self.select_options(limits)
+        
+        pesa = None
+        
+        if limits[opt] == "ei rajausta":
+            pass
+        elif limits[opt] == "pesa":
+            print "Valitse tulostettava pesä"
+            opt = self.select_options(self.melliferas.mehilaispesa.pesat)
+            pesa = self.melliferas.mehilaispesa.pesat[opt]
+            
+        print ""
+        print "Rajaukset:"
+        print "Pesä: " + str(pesa)
+        self.melliferas.ryhmakirjoitin.write(pesa)
         print ""
         
     def write_file(self):
