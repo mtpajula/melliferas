@@ -18,6 +18,7 @@ class Mehilaispesa(object):
             
             if rivi["Sample"] in self.mehilaiset:
                 self.mehilaiset[rivi["Sample"]].lisaa_rivi(rivi)
+                self.mehilaiset[rivi["Sample"]].tiedostosta(filepath)
             else:
                 apismellifera = Mehilainen(rivi)
                 apismellifera.tiedostosta(filepath)
