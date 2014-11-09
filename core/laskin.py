@@ -107,11 +107,11 @@ class Laskin(object):
             targets = self.ct_means(bee.targets())
             
             for target in targets:
-                
-                if target in target_means:
-                    target_means[target].append(targets[target]["ct_mean"])
-                else:
-                    target_means[target] = [targets[target]["ct_mean"]]
+                if targets[target]["ct_mean"] != 0:
+                    if target in target_means:
+                        target_means[target].append(targets[target]["ct_mean"])
+                    else:
+                        target_means[target] = [targets[target]["ct_mean"]]
         
         ddct_targets = {}
         for target in target_means:
