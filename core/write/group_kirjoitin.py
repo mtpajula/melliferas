@@ -26,22 +26,23 @@ class GroupWriter(TemplateWriter):
         writer.writerow(['','','','','',''])
         writer.writerow(self.title_column)
         
-        means = self.mehilaispesa.target_keskiarvot(nest)
-        means = self.mehilaispesa.laskin.delta_ct_treatmens(means)
+        treatments = self.mehilaispesa.target_keskiarvot(nest)
+        treatments = self.mehilaispesa.laskin.delta_ct_treatmens(treatments)
         
-        for treatment in means:
-            for target in means[treatment]:
+        for treatment in treatments:
+            for target in treatments[treatment]:
                 row = []
                 row.append(nest_name)
                 row.append(treatment)
-                row.append(target)
-                row.append(self.num(means[treatment][target]["ct_mean"]))
-                row.append(self.num(means[treatment][target]["standard_deviation"]))
-                row.append(self.num(means[treatment][target]["delta_ct"]))
+                t = treatments[treatment][target]
+                row.append(t.name)
+                row.append(self.num(t.ct_mean))
+                row.append(self.num(t.standard_deviation))
+                row.append(self.num(t.delta_ct))
                 
                 writer.writerow(row)
         
-        ddct = self.mehilaispesa.laskin.delta_delta_ct(means)
+        ddct = self.mehilaispesa.laskin.delta_delta_ct(treatments)
         
         writer.writerow(['','','','','',''])
         writer.writerow(self.title_column_ddct)

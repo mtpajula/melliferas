@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
+from targetdata import TargetData
 
 class Mehilainen(object):
     
@@ -12,9 +13,22 @@ class Mehilainen(object):
         self.nest = rivi["Sample"][0]
         self.treatment = rivi["Sample"][1]
         
-        
     def tiedostosta(self, polku):
         self.tiedostot.append(polku)
+        
+    def uniikit_tiedostot(self):
+        uniikit = []
+        for t in self.tiedostot:
+            if t not in uniikit:
+                uniikit.append(t)
+        return uniikit
+        
+    def tiedoston_numero(self, tiedosto):
+        uniikit = self.uniikit_tiedostot()
+                
+        for i, t in enumerate(uniikit):
+            if t == tiedosto:
+                return i
         
     def lisaa_rivi(self, rivi):
         self.rivit.append(rivi)
@@ -24,15 +38,22 @@ class Mehilainen(object):
             print rivi
             
     def targets(self):
-        targets = {}
-        for rivi in self.rivit:
-            # 4c3
+        targets = []
+        for i, rivi in enumerate(self.rivit):
+            
             if rivi["Target"] != '' and rivi["Cq"] != 'NaN':
-                if rivi["Target"] in targets:
-                    targets[rivi["Target"]].append(float(rivi["Cq"].replace(",",".")))
-                else:
-                    targets[rivi["Target"]] = [float(rivi["Cq"].replace(",","."))]
-        
+                found = False
+                for target in targets:
+                    
+                    if target.compare(rivi["Target"], self.tiedostot[i]) is True:
+                        target.add_str_cq(rivi["Cq"])
+                        found = True
+                
+                if found is False:
+                    t = TargetData(rivi["Target"], self.tiedostot[i], self.tiedoston_numero(self.tiedostot[i]))
+                    t.add_str_cq(rivi["Cq"])
+                    targets.append(t)
+            
         return targets
             
     def tulosta(self):
@@ -49,8 +70,8 @@ class Mehilainen(object):
         print "treatment: " + str(self.treatment)
         
         print "-- tiedostoista rivejä ---"
-        for tiedosto in self.tiedostot:
-            print tiedosto
+        for i, tiedosto in enumerate(self.uniikit_tiedostot()):
+            print str(i) + " " + tiedosto
         print ""
         
         

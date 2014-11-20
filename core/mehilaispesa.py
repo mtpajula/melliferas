@@ -83,12 +83,12 @@ class Mehilaispesa(object):
         else:
             bees = self.rajaa(pesa, None)
         
-        ddct = {}
+        treatments = {}
         for treatment in self.treatments:
             t_bees = self.rajaa_treatment(treatment, bees)
-            ddct[treatment] = self.laskin.group_ct_mean(t_bees)
+            treatments[treatment] = self.laskin.group_ct_mean(t_bees)
             
-        return ddct
+        return treatments
         
     def tulosta_tiedot(self):
         print ""
@@ -111,45 +111,44 @@ class Mehilaispesa(object):
         del self.treatments[:]
         del self.pesat[:]
         
-    def tulosta_delta_delta_ct(self, means):
-        ddct = self.laskin.delta_delta_ct(means)
-        print " " + "target" + " "*(20 - len("target")) + "ryhmät" + " "*(20 - len("ryhmät")) + "Delta delta Ct"
-        print "-"*50
+    def tulosta_delta_delta_ct(self, treatments):
+        ddct = self.laskin.delta_delta_ct(treatments)
+        self.tulosta_rivi(["Target","Ryhmat","Delta Delta Ct"])
+        print "-"*80
+        
         for target in ddct:
-            spaces = " "*(20 - len(target))
-            t =  " " + target + spaces
             for group in ddct[target]:
-                spaces = " "*(20 - len(group))
-                print t + group + spaces + str(ddct[target][group])
+                self.tulosta_rivi([target,group,ddct[target][group]])
         
     def tulosta_target_keskiarvot(self, pesa = None):
-        means = self.target_keskiarvot(pesa)
-        means = self.laskin.delta_ct_treatmens(means)
-        print " " + "treatment" + " "*(20 - len("treatment")) + "target" + " "*(20 - len("target")) + "Ryhmän Ct mean" + " "*(20 - len("Ryhmän Ct mean")) + "Delta Ct"
-        print "-"*70
-        for treatment in means:
-            spaces = " "*(20 - len(treatment))
-            t =  " " + treatment + spaces
-            for target in means[treatment]:
-                spaces = " "*(20 - len(target))
-                print t + target + spaces + str(means[treatment][target]["ct_mean"]),
-                spaces = " "*(20 - len(str(means[treatment][target]["ct_mean"])))
-                print spaces + str(means[treatment][target]["delta_ct"])
+        treatments = self.target_keskiarvot(pesa)
+        treatments = self.laskin.delta_ct_treatmens(treatments)
+        
+        self.tulosta_rivi(["Treatment","Target","Ryhma Ct mean","Keskihajonta","Delta Ct"])
+        print "-"*80
+        
+        for treatment in treatments:
+            for target in treatments[treatment]:
+                t = treatments[treatment][target]
+                self.tulosta_rivi([treatment,target,t.ct_mean,t.standard_deviation,t.delta_ct])
+                
         print ""
-        self.tulosta_delta_delta_ct(means)
+        self.tulosta_delta_delta_ct(treatments)
         
     def tulosta_target_data(self, bee):
         targets = self.laskin.ct_means(bee.targets())
         targets = self.laskin.delta_ct(targets)
-        print " " + "target" + " "*(20 - len("target")) + "Ct mean (r)" + " "*(20 - len("Ct mean")) + "Delta Ct" + " "*(20 - len("Delta Ct")) + "Status"
-        print "-"*70
+        
+        self.tulosta_rivi(["File","Target","Ct mean","Delta Ct","Status"])
+        print "-"*80
         
         for target in targets:
-            spaces = " "*(20 - len(target))
-            print " " + target + spaces + str(targets[target]["ct_mean"]),
-            spaces = " "*(20 - len(str(targets[target]["ct_mean"])))
-            print spaces + str(targets[target]["delta_ct"]),
-            spaces = " "*(20 - len(str(targets[target]["delta_ct"])))
-            print spaces + targets[target]["status"]
-
+            self.tulosta_rivi([target.filenum,target.name,target.ct_mean,target.delta_ct,target.status])
+            
+    def tulosta_rivi(self, rivi):
+        spaces = " "
+        for s in rivi:
+            print spaces + str(s),
+            spaces = " "*(15 - len(str(s)))
+        print ""
         

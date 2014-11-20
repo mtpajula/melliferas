@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
 import numpy as np
+from targetdata import TargetData
 
 class Laskin(object):
     
@@ -10,95 +11,82 @@ class Laskin(object):
         self.settings = settings
         
     def ct_means(self, targets):
-        outdata = {}
         for target in targets:
-            outdata[target] = self.ct_mean(target, targets[target])
-        return outdata
+            self.ct_mean(target)
+        return targets
         
-    def ct_mean(self, target, cq_list):
+    def ct_mean(self, target):
         rajat = self.settings.get("target_limits")
-        outdata = {
-                    "ct_mean" : 0.0,
-                    "status" : "",
-                    "delta_ct" : "",
-                    "standard_deviation" : ""
-                    }
-        
-        comparison = None
         
         in_limits = []
-        for i, cq in enumerate(cq_list):
-            if cq < rajat[target]['min']:
+        for i, cq in enumerate(target.cq_list):
+            if cq < rajat[target.name]['min']:
                 pass
-            elif cq > rajat[target]['max']:
+            elif cq > rajat[target.name]['max']:
                 pass
             else:
                 in_limits.append(cq)
         
         if len(in_limits) < 1:
-            outdata["status"] = "All values out of limits"
-            return outdata
+            target.status = "All values out of limits"
+            return
             
         comparison = 0
             
-        diff = len(cq_list) - len(in_limits)
+        diff = len(target.cq_list) - len(in_limits)
         if diff > 0:
-            outdata["status"] = str(diff) + " out of limits "
+            target.status = str(diff) + " out of limits "
         
-        del_list = []
-        for i, cq in enumerate(in_limits):
-            if i != comparison:
-                if abs(cq - in_limits[comparison]) > rajat[target]['dist']:
-                    del_list.append(cq)
-        
-        if len(del_list) > 0:
-            outdata["status"] = str(len(del_list)) + " too large distance "
-        '''
-        for d in del_list:
-            in_limits.remove(d)
-        '''
-        outdata["ct_mean"] = self.count_mean(in_limits)
-        outdata["standard_deviation"] = self.count_standard_deviation(in_limits)
-                    
-        return outdata
+        target.ct_mean = self.count_mean(in_limits)
+        target.standard_deviation = self.count_standard_deviation(in_limits)
         
     def count_mean(self, nums):
         return sum(nums) / float(len(nums))
         
     def count_standard_deviation(self, nums):
         if len(nums) < 2:
-            return 0
+            return 0.0
         
         return np.std(nums, ddof=1)
         
-    def delta_ct_treatmens(self, ddct):
-        ddct_2 = {}
-        for treatment in ddct:
-            ddct_2[treatment] = self.delta_ct(ddct[treatment])
-            
-        return ddct_2
+    def to_list(self, dictionary):
+        l = []
+        for d in dictionary:
+            l.append(dictionary[d])
+        return l
         
-    def delta_ct(self, meandata):
+    def delta_ct_treatmens(self, treatments):
+        for treatment in treatments:
+            self.delta_ct(self.to_list(treatments[treatment]))
+        return treatments
+        
+    def delta_ct(self, targets):
         
         target_ref = self.settings.get("target-ref")
         
-        for target in meandata:
+        for t in targets:
             
-            if target not in target_ref:
+            if t.name not in target_ref:
                 continue
                 
-            if target_ref[target] not in meandata:
-                continue
-                
-            if meandata[target_ref[target]]["ct_mean"] == 0:
-                continue
-                
-            if meandata[target]["ct_mean"] == 0:
+            if t.ct_mean == 0.0:
                 continue
             
-            meandata[target]["delta_ct"] = meandata[target]["ct_mean"] - meandata[target_ref[target]]["ct_mean"]
+            tref = None
+            for t2 in targets:
+                if t2.compare(target_ref[t.name], t.filepath) is True:
+                    tref = t2
+                    break
+            
+            if tref is None:
+                continue
+            
+            if tref.ct_mean == 0.0:
+                continue
+                
+            t.delta_ct = t.ct_mean - tref.ct_mean
         
-        return meandata
+        return targets
         
     def group_ct_mean(self, bees):
         target_means = {}
@@ -107,24 +95,22 @@ class Laskin(object):
             targets = self.ct_means(bee.targets())
             
             for target in targets:
-                if targets[target]["ct_mean"] != 0:
-                    if target in target_means:
-                        target_means[target].append(targets[target]["ct_mean"])
+                if target.ct_mean != 0:
+                    if target.name in target_means:
+                        target_means[target.name].add_cq(target.ct_mean)
                     else:
-                        target_means[target] = [targets[target]["ct_mean"]]
+                        t = TargetData(target.name)
+                        t.add_cq(target.ct_mean)
+                        target_means[target.name] = t
         
-        ddct_targets = {}
         for target in target_means:
-            ddct_targets[target] = {
-                                    "ct_mean" : self.count_mean(target_means[target]),
-                                    "status" : "",
-                                    "delta_ct" : "",
-                                    "standard_deviation" : self.count_standard_deviation(target_means[target])
-                                }
-            #ddct_targets[target] = self.count_mean(target_means[target])
-        return ddct_targets
+            t = target_means[target]
+            t.ct_mean = self.count_mean(t.cq_list)
+            t.standard_deviation = self.count_standard_deviation(t.cq_list)
+            
+        return target_means
         
-    def delta_delta_ct(self, ddct):
+    def delta_delta_ct(self, treatments):
         
         target_ref = self.settings.get("target-ref")
         results = {}
@@ -132,9 +118,9 @@ class Laskin(object):
         for target in target_ref:
             try:
                 results[target] = {
-                                    "test1" :   ddct["t"][target]["delta_ct"] - ddct["c"][target]["delta_ct"],
-                                    "test2" :   ddct["t"][target]["delta_ct"] - ddct["i"][target]["delta_ct"],
-                                    "control" : ddct["c"][target]["delta_ct"] - ddct["i"][target]["delta_ct"],
+                                    "test1" :   treatments["t"][target].delta_ct - treatments["c"][target].delta_ct,
+                                    "test2" :   treatments["t"][target].delta_ct - treatments["i"][target].delta_ct,
+                                    "control" : treatments["c"][target].delta_ct - treatments["i"][target].delta_ct,
                                 }
             except Exception, e:
                 self.messages.error("delta-delta-ct, " + target + ": " + str(e))

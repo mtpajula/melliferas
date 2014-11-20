@@ -7,7 +7,7 @@ class BeeWriter(TemplateWriter):
     
     def __init__(self, settings, messages, mehilaispesa):
         super(BeeWriter, self).__init__(settings, messages, mehilaispesa)
-        self.title_column = ['Sample', 'Nest', 'Treatment', 'Target', 'Ct mean', 'Standard deviation', 'Delta Ct', 'Status']
+        self.title_column = ['Sample', 'Nest', 'Treatment', 'Target', 'File', 'Ct mean', 'Standard deviation', 'Delta Ct', 'Status']
         
     def get_dialect(self):
         dialect = csv.excel
@@ -35,10 +35,11 @@ class BeeWriter(TemplateWriter):
                 row.append(bee.sample)
                 row.append(bee.nest)
                 row.append(bee.treatment)
-                row.append(target)
-                row.append(self.num(targets[target]["ct_mean"]))
-                row.append(self.num(targets[target]["standard_deviation"]))
-                row.append(self.num(targets[target]["delta_ct"]))
-                row.append(targets[target]["status"])
+                row.append(target.name)
+                row.append(target.filenum)
+                row.append(self.num(target.ct_mean))
+                row.append(self.num(target.standard_deviation))
+                row.append(self.num(target.delta_ct))
+                row.append(target.status)
                 
                 writer.writerow(row)
