@@ -49,7 +49,7 @@ class Csv_Reader_Template(object):
         return False
         
     def read(self, filepath, check = False):
-        m = self.messages.add("Luetaan tiedosto " + filepath, "load")
+        m = self.messages.add("open " + filepath, "load")
         self.clear()
         rows = []
         try:
